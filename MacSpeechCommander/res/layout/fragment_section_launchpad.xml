@@ -1,0 +1,48 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:orientation="vertical" >
+
+    <TextView
+        android:id="@+id/PerformanceText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:text="@string/performance_text" >
+    </TextView>
+
+    <!--
+    <TextView
+        android:id="@+id/ResultText"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+         android:contentDescription="Recognition results"
+        android:text="Text goes here..." >
+    </TextView>
+    -->
+
+    <EditText
+        android:id="@+id/ResultEdit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:contentDescription="Recognition results"
+        android:inputType="none"
+        android:text="Text goes here..." />
+
+    <Button
+        android:id="@+id/BtnSpeak"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/icon" >
+    </Button>
+
+    
+
+</RelativeLayout>
