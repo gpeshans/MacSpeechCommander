@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <dimen name="temperature">32sp</dimen>
+    <dimen name="info">14sp</dimen>
+    <dimen name="municipality">16sp</dimen>
+    <dimen name="fog">20sp</dimen>
+    <dimen name="country">14sp</dimen>
+    <dimen name="horizontalMargin">50dp</dimen>
+    <dimen name="verticalMargin">20dp</dimen>
+    <dimen name="tempMargin">75dp</dimen>
+    <dimen name="sevicesMargin">85dp</dimen>
+	<dimen name="topMargin">75dp</dimen>
+	<dimen name="backgroundTopMargin">40dp</dimen>
+	<dimen name="backgroundOtherMargin">10dp</dimen>
+	<dimen name="iconLeftMargin">25dp</dimen>
+	<dimen name="iconTopMargin">15dp</dimen>
+	<dimen name="infoHeight">150dp</dimen>
+	<dimen name="forecastTempTopMargin">15dp</dimen>
+	<dimen name="forecastTempLeftMargin">40dp</dimen>
+	<dimen name="forecastTitleTopMargin">25dp</dimen>
+	<dimen name="forecastTopMargin">30dp</dimen>
+	<dimen name="compassTopMargin">5dp</dimen>
+	<dimen name="servicesTitlesMargin">60dp</dimen>
+</resources>
