@@ -1,17 +1,12 @@
 package mk.ukim.finki.jmm.commander.services;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
-import java.nio.charset.CharsetDecoder;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
+import mk.ukim.finki.jmm.commander.R;
 
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -19,14 +14,16 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
 
 public class Prices {
 
 	/**
 	 * @param args
 	 */
+
 	public static HashMap<String, String> getPrices() {
+
+		HashMap<String, Integer> productsMap = loadImages();
 
 		String url = "http://www.stat.gov.mk/PrethodniSoopstenijaOblast.aspx?id=45&rbrObl=15";
 		HashMap<String, String> products = null;
@@ -93,6 +90,10 @@ public class Prices {
 									cell.getStringCellValue());
 							String s = Charset.forName("UTF-8").decode(b)
 									.toString();
+
+							if (!productsMap.containsKey(s))
+								continue;
+
 							key = s;
 						} else if (cellNo == 3) {
 							Float s = (float) cell.getNumericCellValue();
@@ -100,7 +101,10 @@ public class Prices {
 						}
 				}
 				if (rowNo > 6) {
-					products.put(key, value.toString());
+
+					String valueFormatted = String.format("%.2f", value);
+					if (!key.equals(""))
+						products.put(key, valueFormatted);
 				}
 			}
 
@@ -109,6 +113,34 @@ public class Prices {
 		}
 
 		return products;
+	}
+
+	public static HashMap<String, Integer> loadImages() {
+
+		HashMap<String, Integer> images = new HashMap<String, Integer>();
+
+		String[] products = { "Ориз", "Црвени домати", "Зелени пиперки",
+				"Компири", "Грав", "Кромид", "Лук", "Зелка", "Спанаќ",
+				"Краставици", "Морков", "Цвекло", "Кикиритки-зрно", "Круши",
+				"Јаболка", "Ореви-лупени", "Киви", "Лимони", "Портокали",
+				"Мандарини", "Банани", "Маслинки" };
+
+		int[] icons = { R.drawable.ic_rice, R.drawable.ic_tomato,
+				R.drawable.ic_green_pepper, R.drawable.ic_potato,
+				R.drawable.ic_beans, R.drawable.ic_onion, R.drawable.ic_garlic,
+				R.drawable.ic_cabbage, R.drawable.ic_spinach,
+				R.drawable.ic_cucumber, R.drawable.ic_carrot,
+				R.drawable.ic_beets, R.drawable.ic_peanuts, R.drawable.ic_pear,
+				R.drawable.ic_apple, R.drawable.ic_walnuts, R.drawable.ic_kiwi,
+				R.drawable.ic_lemon, R.drawable.ic_orange,
+				R.drawable.ic_mandarin, R.drawable.ic_banana,
+				R.drawable.ic_olives };
+
+		for (int i = 0; i < icons.length; i++) {
+			images.put(products[i], icons[i]);
+		}
+
+		return images;
 	}
 
 }

@@ -5,7 +5,20 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.BasicResponseHandler;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.poi.ss.util.DateFormatConverter;
+
 import mk.ukim.finki.jmm.commander.R;
 import mk.ukim.finki.jmm.commander.pocketsphinx.RecognitionListener;
 import mk.ukim.finki.jmm.commander.pocketsphinx.RecognizerTask;
@@ -14,31 +27,48 @@ import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 
+import android.app.Activity;
 import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.AssetManager;
+import android.location.Location;
+import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.net.wifi.WifiManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.PowerManager;
+import android.provider.AlarmClock;
+import android.provider.ContactsContract;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
+import mk.ukim.finki.jmm.commander.actions.Actions;
 
 public class MacSpeechCommanderStartActivity extends FragmentActivity implements
 		ActionBar.TabListener {
@@ -94,8 +124,6 @@ public class MacSpeechCommanderStartActivity extends FragmentActivity implements
 				.setTabListener(this));
 		actionBar.addTab(actionBar.newTab().setText("Сервиси")
 				.setTabListener(this));
-		actionBar.addTab(actionBar.newTab().setText("Историја")
-				.setTabListener(this));
 	}
 
 	@Override
@@ -124,7 +152,7 @@ public class MacSpeechCommanderStartActivity extends FragmentActivity implements
 		rawLogDir.mkdirs();
 
 		AssetManager assetManager = getAssets();
-		String[] files = { "azbuka.dic", "azbuka.lm.DMP", "feat.params",
+		String[] files = { "commands.dic", "commands.lm.DMP", "feat.params",
 				"mdef", "means", "mixture_weights", "noisedict",
 				"transition_matrices", "variances" };
 
@@ -260,8 +288,6 @@ public class MacSpeechCommanderStartActivity extends FragmentActivity implements
 				return new LaunchpadSectionFragment();
 			case 1:
 				return new ServiceSectionFragment();
-			case 2:
-				return new HistorySectionFragment();
 			default:
 				// The other sections of the app are dummy placeholders.
 				Fragment fragment = new DummySectionFragment();
@@ -274,7 +300,7 @@ public class MacSpeechCommanderStartActivity extends FragmentActivity implements
 
 		@Override
 		public int getCount() {
-			return 3;
+			return 2;
 		}
 
 		@Override
@@ -314,15 +340,11 @@ public class MacSpeechCommanderStartActivity extends FragmentActivity implements
 			final View rootView = inflater.inflate(R.layout.services,
 					container, false);
 
-			/*
-			 * rootView.getContext().registerReceiver(this.wifiReciever, new
-			 * IntentFilter(wifiManager.NETWORK_STATE_CHANGED_ACTION));
-			 */
-
 			dialogBuilder = new AlertDialog.Builder(rootView.getContext())
-					.setTitle("Исклучен Wi-fi")
-					.setMessage("Грешка!!!")
-					.setPositiveButton("Во ред",
+					.setTitle("Грешка!")
+					.setMessage("Не е пронајдена интернет конекција.")
+					.setCancelable(false)
+					.setPositiveButton("Назад",
 							new DialogInterface.OnClickListener() {
 								public void onClick(DialogInterface dialog,
 										int which) {
@@ -411,19 +433,17 @@ public class MacSpeechCommanderStartActivity extends FragmentActivity implements
 
 	}
 
-	public static class HistorySectionFragment extends Fragment {
-		@Override
-		public View onCreateView(LayoutInflater inflater, ViewGroup container,
-				Bundle savedInstanceState) {
-			View rootView = inflater
-					.inflate(R.layout.history, container, false);
-			return rootView;
-		}
-
-	}
-
+	/*
+	 * public static class HistorySectionFragment extends Fragment {
+	 * 
+	 * @Override public View onCreateView(LayoutInflater inflater, ViewGroup
+	 * container, Bundle savedInstanceState) { View rootView = inflater
+	 * .inflate(R.layout.history, container, false); return rootView; }
+	 * 
+	 * }
+	 */
 	public static class LaunchpadSectionFragment extends Fragment implements
-			OnTouchListener, RecognitionListener {
+			RecognitionListener {
 		static {
 			System.loadLibrary("pocketsphinx_jni");
 		}
@@ -463,72 +483,190 @@ public class MacSpeechCommanderStartActivity extends FragmentActivity implements
 
 		TextView result_text;
 
+		Button btnSpeak;
+
+		Boolean flagSpeak;
+
+		
+
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container,
 				Bundle savedInstanceState) {
 			View rootView = inflater.inflate(
 					R.layout.fragment_section_launchpad, container, false);
 
+			this.btnSpeak = (Button) rootView.findViewById(R.id.BtnSpeak);
+			this.btnSpeak.setOnClickListener(btnSpeakListener);			
+
+			fillMap();
+
+			this.start_date = new Date();
+
 			this.rec = new RecognizerTask();
 
-			this.rec_thread = new Thread(this.rec);
 			this.listening = false;
-			Button b = (Button) rootView.findViewById(R.id.BtnSpeak);
+			flagSpeak = false;
 
-			b.setOnTouchListener(this);
 			this.performance_text = (TextView) rootView
 					.findViewById(R.id.PerformanceText);
 
 			this.edit_text = (EditText) rootView.findViewById(R.id.ResultEdit);
 
 			this.rec.setRecognitionListener(this);
+
+			this.rec_thread = new Thread(this.rec);
+
 			this.rec_thread.start();
 
 			return rootView;
 		}
 
+		public static HashMap<String, String> actionsMac;
+
+		public static void fillMap() {
+
+			actionsMac = new HashMap<String, String>();
+
+			actionsMac.put("ALARM", "АЛАРМ");
+			actionsMac.put("VREME", "ВРЕМЕ");
+			actionsMac.put("VALUTI", "ВАЛУТИ");
+			actionsMac.put("CENI", "ЦЕНИ");
+			actionsMac.put("MARKET", "МАРКЕТ");
+			actionsMac.put("MAPA", "МАПA");
+			actionsMac.put("DZIPIES", "GPS");
+			actionsMac.put("DATUM", "ДАТУМ");
+			actionsMac.put("BLUTUT", "BLUETOOTH");
+			actionsMac.put("VIFI", "Wi-Fi");
+			actionsMac.put("PODESUVANJA", "ПОДЕСУВАЊА");
+			actionsMac.put("POVIK", "ПОВИК");
+			actionsMac.put("IMENIK", "ИМЕНИК");
+			actionsMac.put("MEJL", "МЕJЛ");
+			actionsMac.put("MUZIKA", "МУЗИКА");
+			actionsMac.put("PORAKA", "ПОРАКA");
+			actionsMac.put("INTERNET", "ИНТЕРНЕТ");
+			actionsMac.put("GALERIJA", "ГАЛЕРИЈА");
+			actionsMac.put("PREZEMANJA", "ПРЕЗЕМАЊА");
+			actionsMac.put("KAMERA", "КАМЕРА");
+			actionsMac.put("KALENDAR", "КАЛЕНДАР");
+			actionsMac.put("KALKULATOR", "КАЛКУЛАТОР");
+			actionsMac.put("JUTJUB", "YouTube");
+
+		}
+
+		@Override
+		public void onStop() {
+			super.onStop();
+			rec.stop();
+		}
+
+		public void onPause() {
+			super.onPause();
+			rec.stop();
+		};
+
+		OnClickListener btnSpeakListener = new View.OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+
+				if (!flagSpeak) {
+					start_date = new Date();
+					listening = true;
+
+					flagSpeak = true;
+					edit_text.setText("Зборувајте...");
+
+					rec.start();
+				} else {
+
+					Date end_date = new Date();
+					long nmsec = end_date.getTime() - start_date.getTime();
+					speech_dur = (float) nmsec / 1000;
+					if (listening) {
+						Log.d(getClass().getName(), "Showing Dialog");
+						rec_dialog = ProgressDialog.show(
+								getView().getContext(), "", "Процесира...",
+								true);
+						rec_dialog.setCancelable(false);
+						listening = false;
+						flagSpeak = false;
+					}
+					rec.stop();
+
+				}
+			}
+		};
+
 		@Override
 		public void onPartialResults(Bundle b) {
 			final LaunchpadSectionFragment that = this;
 			final String hyp = b.getString("hyp");
+
 			that.edit_text.post(new Runnable() {
-				// that.result_text.post(new Runnable() {
 				public void run() {
-					that.edit_text.setText(hyp);
-					// that.result_text.setText(hyp);
+
+					if (hyp != null) {
+						String tempRes = hyp;
+
+						// removes words shorter than 3 letters
+						tempRes = tempRes.replaceAll("\\b[\\w']{1,2}\\b", "");
+						tempRes = tempRes.replaceAll("\\s{2,}", " ");
+
+						String results[] = tempRes.split(" ");
+						String finalRes = "";
+						for (int i = 0; i < results.length; i++) {
+							results[i] = actionsMac.get(results[i]);
+							if (results[i] != null)
+								finalRes += results[i] + " ";
+						}
+
+						that.edit_text.setText(finalRes);
+					}
+
 				}
 			});
+
 		}
 
 		@Override
 		public void onResults(Bundle b) {
 
-			final String hyp = b.getString("hyp");
+			String tempRes = b.getString("hyp");
+
+			if (tempRes != null) {
+
+				// removes words shorter than 3 letters
+				tempRes = tempRes.replaceAll("\\b[\\w']{1,2}\\b", "");
+				tempRes = tempRes.replaceAll("\\s{2,}", " ");
+			}
+
+			String results[] = tempRes.split(" ");
+
+			final String hyp;
+
+			if (results.length > 0)
+				hyp = results[results.length - 1];
+			else
+				hyp = "";
+
 			final LaunchpadSectionFragment that = this;
 			this.edit_text.post(new Runnable() {
-				// this.result_text.post(new Runnable() {
 				public void run() {
-					that.edit_text.setText(hyp);
-					// that.result_text.setText(hyp);
 
+					that.edit_text.setText(actionsMac.get(hyp));
 					Date end_date = new Date();
 					long nmsec = end_date.getTime() - that.start_date.getTime();
 					float rec_dur = (float) nmsec / 1000;
 					that.performance_text.setText(String.format(
-							"%.2f seconds %.2f xRT", that.speech_dur, rec_dur
+							"%.2f секунди %.2f xRT", that.speech_dur, rec_dur
 									/ that.speech_dur));
 					Log.d(getClass().getName(), "Hiding Dialog");
 
-					/*
-					 * if (hyp.equals("I")) { Intent intent = new
-					 * Intent(Intent.ACTION_PICK, Contacts.CONTENT_URI);
-					 * startActivityForResult(intent, 1); }
-					 * 
-					 * if (hyp.equals("O")) { Intent intent = new Intent(
-					 * MediaStore.ACTION_IMAGE_CAPTURE);
-					 * startActivityForResult(intent, 2500); }
-					 */
-					that.rec_dialog.dismiss();
+					if (that.rec_dialog != null)
+						that.rec_dialog.dismiss();
+
+					callAction(hyp);
+
 				}
 			});
 
@@ -538,7 +676,6 @@ public class MacSpeechCommanderStartActivity extends FragmentActivity implements
 		public void onError(int err) {
 			final LaunchpadSectionFragment that = this;
 			that.edit_text.post(new Runnable() {
-				// that.result_text.post(new Runnable() {
 				public void run() {
 					that.rec_dialog.dismiss();
 				}
@@ -546,32 +683,51 @@ public class MacSpeechCommanderStartActivity extends FragmentActivity implements
 
 		}
 
-		@Override
-		public boolean onTouch(View v, MotionEvent event) {
-			switch (event.getAction()) {
-			case MotionEvent.ACTION_DOWN:
-				start_date = new Date();
-				this.listening = true;
-				this.rec.start();
-				break;
-			case MotionEvent.ACTION_UP:
-				Date end_date = new Date();
-				long nmsec = end_date.getTime() - start_date.getTime();
-				this.speech_dur = (float) nmsec / 1000;
-				if (this.listening) {
-					Log.d(getClass().getName(), "Showing Dialog");
-					this.rec_dialog = ProgressDialog.show(getView()
-							.getContext(), "", "Recognizing speech...", true);
-					this.rec_dialog.setCancelable(false);
-					this.listening = false;
-				}
-				this.rec.stop();
-				break;
-			default:
-				;
+		public void callAction(String action) {
+
+			if (action != null) {
+
+				rec.stop();
+				flagSpeak = false;
+
+				if (!actionsMac.containsKey(action))
+					return;
+
+				String toastText = actionsMac.get(action).toString();
+
+				Toast.makeText(getActivity().getBaseContext(), toastText,
+						Toast.LENGTH_LONG).show();
+
+				Actions.executeAction(action, getView().getContext(),
+						getActivity());
+
 			}
-			return false;
+
 		}
+
+		/*
+		 * private class ActionTask extends AsyncTask<URL, Integer, String> {
+		 * 
+		 * private ProgressDialog progressDialog;
+		 * 
+		 * @Override protected String doInBackground(URL... params) {
+		 * 
+		 * return ""; }
+		 * 
+		 * @Override protected void onPreExecute() { super.onPreExecute();
+		 * progressDialog = new ProgressDialog(getView().getContext());
+		 * progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+		 * progressDialog.setCancelable(false);
+		 * progressDialog.setMessage("Процесира...");
+		 * progressDialog.setIndeterminate(true); progressDialog.show(); }
+		 * 
+		 * @Override protected void onProgressUpdate(Integer... values) {
+		 * super.onProgressUpdate(values); }
+		 * 
+		 * @Override protected void onPostExecute(String result) {
+		 * super.onPostExecute(result); if (progressDialog.isShowing())
+		 * progressDialog.dismiss(); } }
+		 */
 	}
 
 }

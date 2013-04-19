@@ -3,7 +3,6 @@ package mk.ukim.finki.jmm.commander.services;
 import java.util.List;
 
 import mk.ukim.finki.jmm.commander.R;
-
 import android.app.Activity;
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -17,6 +16,12 @@ public class PricesAdapter extends ArrayAdapter<Product> {
 	private Context context;
 
 	private List<Product> listProduct;
+
+	static class ViewHolder {
+		public TextView tvName;
+		public TextView tvValue;
+		public ImageView image;
+	}
 
 	public PricesAdapter(Context context, int resourceId,
 			List<Product> listProduct) {
@@ -35,22 +40,25 @@ public class PricesAdapter extends ArrayAdapter<Product> {
 
 	public View getView(int position, View convertView, ViewGroup viewGroup) {
 		Product entry = listProduct.get(position);
-		if (convertView == null) {
+		View rowView = convertView;
+		if (rowView == null) {
 			LayoutInflater inflater = ((Activity) context).getLayoutInflater();
-			convertView = inflater.inflate(R.layout.rowlayout_prices, viewGroup,
+			rowView = inflater.inflate(R.layout.rowlayout_prices, viewGroup,
 					false);
-		}
 
-		/*ImageView image = (ImageView) convertView.findViewById(R.id.image);
-		image.setImageDrawable(context.getResources().getDrawable(entry.getImage()));*/
-		
-		TextView name = (TextView) convertView.findViewById(R.id.value);
-		name.setText(entry.getValue().toString());
+			ViewHolder viewHolder = new ViewHolder();
+			viewHolder.tvName = (TextView) rowView.findViewById(R.id.name);
+			viewHolder.tvValue = (TextView) rowView.findViewById(R.id.value);
+			viewHolder.image = (ImageView) rowView.findViewById(R.id.image);
+			rowView.setTag(viewHolder);
+		}		
 
-		TextView value = (TextView) convertView.findViewById(R.id.name);
-		value.setText(entry.getName());
+		ViewHolder holder = (ViewHolder) rowView.getTag();
+		holder.image.setImageResource(entry.getImage());
+		holder.tvName.setText(entry.getName());
+		holder.tvValue.setText(entry.getValue());
 
-		return convertView;
+		return rowView;
 	}
 
 }

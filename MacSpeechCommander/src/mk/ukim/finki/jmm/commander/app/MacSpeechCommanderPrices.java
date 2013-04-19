@@ -8,9 +8,6 @@ import java.util.List;
 import java.util.Map;
 
 import mk.ukim.finki.jmm.commander.R;
-import mk.ukim.finki.jmm.commander.services.Currency;
-import mk.ukim.finki.jmm.commander.services.CurrencyAdapter;
-import mk.ukim.finki.jmm.commander.services.CurrencyService;
 import mk.ukim.finki.jmm.commander.services.Prices;
 import mk.ukim.finki.jmm.commander.services.PricesAdapter;
 import mk.ukim.finki.jmm.commander.services.Product;
@@ -24,7 +21,6 @@ import android.widget.TextView;
 public class MacSpeechCommanderPrices extends ListActivity {
 
 	private List<Product> pricesList;
-	//private HashMap<String, String> data;
 	private String date;
 
 	@Override
@@ -32,9 +28,65 @@ public class MacSpeechCommanderPrices extends ListActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.prices);
 
-		getActionBar().setDisplayHomeAsUpEnabled(true);
+		if (savedInstanceState == null) {
+			getActionBar().setDisplayHomeAsUpEnabled(true);
 
-		new PricesServiceTask().execute();
+			new PricesServiceTask().execute();
+		} else {
+
+			pricesList = new ArrayList<Product>();
+			date = savedInstanceState.getString("date");
+
+			ArrayList<String> name = savedInstanceState
+					.getStringArrayList("name");
+			ArrayList<String> values = savedInstanceState
+					.getStringArrayList("values");
+			ArrayList<Integer> images = savedInstanceState
+					.getIntegerArrayList("images");
+
+			for (int i = 0; i < name.size(); i++) {
+				pricesList.add(new Product(name.get(i), values.get(i), images
+						.get(i)));
+			}
+
+			getActionBar().setDisplayHomeAsUpEnabled(true);
+			PricesAdapter adapter = new PricesAdapter(
+					MacSpeechCommanderPrices.this, R.layout.rowlayout_prices,
+					pricesList);
+
+			adapter.notifyDataSetChanged();
+			setListAdapter(adapter);
+
+			TextView tvDate = (TextView) MacSpeechCommanderPrices.this
+					.findViewById(R.id.Date);
+			tvDate.setText(date);
+		}
+
+	}
+
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+
+		if (pricesList.isEmpty())
+			return;
+		
+		outState.putBoolean("flag", true);
+
+		ArrayList<String> name = new ArrayList<String>();
+		ArrayList<String> values = new ArrayList<String>();
+		ArrayList<Integer> images = new ArrayList<Integer>();
+		for (int i = 0; i < pricesList.size(); i++) {
+			name.add(pricesList.get(i).getName());
+			values.add(pricesList.get(i).getValue());
+			images.add(pricesList.get(i).getImage());
+		}
+
+		outState.putStringArrayList("name", name);
+		outState.putStringArrayList("values", values);
+		outState.putIntegerArrayList("images", images);
+		outState.putString("date", date);
+
 	}
 
 	public boolean onOptionsItemSelected(android.view.MenuItem item) {
@@ -60,39 +112,24 @@ public class MacSpeechCommanderPrices extends ListActivity {
 
 			try {
 
-				/*
-				 * String[] shortNames = new String[] { "EUR", "GBP", "USD",
-				 * "CAD", "AUD", "DKK", "JPY", "NOK", "SEK", "CHF" };
-				 * 
-				 * HashMap<Integer, Integer> images = new HashMap<Integer,
-				 * Integer>(); images.put(0, R.drawable.ic_eur); images.put(1,
-				 * R.drawable.ic_gbp); images.put(2, R.drawable.ic_usd);
-				 * images.put(3, R.drawable.ic_cad); images.put(4,
-				 * R.drawable.ic_aud); images.put(5, R.drawable.ic_dkk);
-				 * images.put(6, R.drawable.ic_jpy); images.put(7,
-				 * R.drawable.ic_nok); images.put(8, R.drawable.ic_sek);
-				 * images.put(9, R.drawable.ic_chf); images.put(10,
-				 * R.drawable.ic_launcher);
-				 * 
-				 * String[] names = new String[10]; String[] values = new
-				 * String[10];
-				 */
-
 				HashMap<String, String> data = new HashMap<String, String>();
 				date = "";
 
 				pricesList = new ArrayList<Product>();
 				data = Prices.getPrices();
 
+				HashMap<String, Integer> images = Prices.loadImages();
+
 				date = data.get("датум");
 				data.remove("датум");
-				
+
 				Iterator iter = data.entrySet().iterator();
 				while (iter.hasNext()) {
 					Map.Entry pairs = (Map.Entry) iter.next();
 					pricesList.add(new Product((String) pairs.getKey(),
-							(String) pairs.getValue()));
-				}								
+							(String) pairs.getValue(), images.get(pairs
+									.getKey().toString())));
+				}
 
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -107,7 +144,7 @@ public class MacSpeechCommanderPrices extends ListActivity {
 			progressDialog = new ProgressDialog(MacSpeechCommanderPrices.this);
 			progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
 			progressDialog.setCancelable(false);
-			progressDialog.setMessage("Loading...");
+			progressDialog.setMessage("Процесира...");
 			progressDialog.setIndeterminate(true);
 			progressDialog.show();
 		}
@@ -121,14 +158,13 @@ public class MacSpeechCommanderPrices extends ListActivity {
 		protected void onPostExecute(String result) {
 			super.onPostExecute(result);
 
-			TextView tvDate = (TextView) MacSpeechCommanderPrices.this.findViewById(R.id.Date);
+			TextView tvDate = (TextView) MacSpeechCommanderPrices.this
+					.findViewById(R.id.Date);
 			tvDate.setText(date);
 
 			PricesAdapter adapter = new PricesAdapter(
 					MacSpeechCommanderPrices.this, R.layout.rowlayout_prices,
 					pricesList);
-			
-			List<Product> p = pricesList;
 
 			adapter.notifyDataSetChanged();
 			setListAdapter(adapter);
