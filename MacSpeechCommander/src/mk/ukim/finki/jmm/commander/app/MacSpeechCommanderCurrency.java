@@ -15,7 +15,6 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.widget.Toast;
 
 public class MacSpeechCommanderCurrency extends ListActivity {
 
@@ -26,9 +25,61 @@ public class MacSpeechCommanderCurrency extends ListActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.currencies);
 
-		getActionBar().setDisplayHomeAsUpEnabled(true);
+		if (savedInstanceState == null) {
+			getActionBar().setDisplayHomeAsUpEnabled(true);
 
-		new CurrencyServiceTask().execute();
+			new CurrencyServiceTask().execute();
+		} else {
+			currencyList = new ArrayList<Currency>();
+
+			ArrayList<String> shName = savedInstanceState
+					.getStringArrayList("short_name");
+			ArrayList<String> fuName = savedInstanceState
+					.getStringArrayList("full_name");
+			ArrayList<String> values = savedInstanceState
+					.getStringArrayList("values");
+			ArrayList<Integer> images = savedInstanceState
+					.getIntegerArrayList("images");
+
+			for (int i = 0; i < shName.size(); i++) {
+				currencyList.add(new Currency(shName.get(i), fuName.get(i),
+						values.get(i), images.get(i)));
+			}
+
+			getActionBar().setDisplayHomeAsUpEnabled(true);
+			CurrencyAdapter adapter = new CurrencyAdapter(
+					MacSpeechCommanderCurrency.this,
+					R.layout.rowlayout_currencies, currencyList);
+
+			adapter.notifyDataSetChanged();
+			setListAdapter(adapter);
+		}
+
+	}
+
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		
+		if(currencyList.isEmpty())
+			return;
+		
+		outState.putBoolean("flag", true);
+		ArrayList<String> shName = new ArrayList<String>();
+		ArrayList<String> fuName = new ArrayList<String>();
+		ArrayList<String> values = new ArrayList<String>();
+		ArrayList<Integer> images = new ArrayList<Integer>();
+		for (int i = 0; i < currencyList.size(); i++) {
+			shName.add(currencyList.get(i).getShortName());
+			fuName.add(currencyList.get(i).getFullNameMac());
+			values.add(currencyList.get(i).getAverage());
+			images.add(currencyList.get(i).getFlag());
+		}
+
+		outState.putStringArrayList("short_name", shName);
+		outState.putStringArrayList("full_name", fuName);
+		outState.putStringArrayList("values", values);
+		outState.putIntegerArrayList("images", images);
 
 	}
 
@@ -98,7 +149,7 @@ public class MacSpeechCommanderCurrency extends ListActivity {
 			progressDialog = new ProgressDialog(MacSpeechCommanderCurrency.this);
 			progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
 			progressDialog.setCancelable(false);
-			progressDialog.setMessage("Loading...");
+			progressDialog.setMessage("Процесира...");
 			progressDialog.setIndeterminate(true);
 			progressDialog.show();
 		}

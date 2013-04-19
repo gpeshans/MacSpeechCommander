@@ -13,6 +13,8 @@ import android.util.Log;
 import edu.cmu.pocketsphinx.Config;
 import edu.cmu.pocketsphinx.Decoder;
 import edu.cmu.pocketsphinx.Hypothesis;
+import edu.cmu.pocketsphinx.Nbest;
+import edu.cmu.pocketsphinx.SWIGTYPE_p_ps_nbest_t;
 import edu.cmu.pocketsphinx.pocketsphinx;
 
 /**
@@ -166,7 +168,10 @@ public class RecognizerTask implements Runnable {
 
 	public RecognizerTask() {
 		pocketsphinx.setLogfile(Environment.getExternalStorageDirectory()
-				.getPath() + "/edu.cmu.pocketsphinx/pocketsphinx.log");
+				.getPath()
+				+ "/"
+				+ MacSpeechCommanderHome.APP_NAME
+				+ "/pocketsphinx.log");
 		Config c = new Config();
 		/*
 		 * In 2.2 and above we can use getExternalFilesDir() or whatever it's
@@ -178,16 +183,16 @@ public class RecognizerTask implements Runnable {
 				.getPath()
 				+ "/"
 				+ MacSpeechCommanderHome.APP_NAME
-				+ "/azbuka.dic");
+				+ "/commands.dic");
 		c.setString("-lm", Environment.getExternalStorageDirectory().getPath()
-				+ "/" + MacSpeechCommanderHome.APP_NAME + "/azbuka.lm.DMP");
+				+ "/" + MacSpeechCommanderHome.APP_NAME + "/commands.lm.DMP");
 		c.setString("-rawlogdir", Environment.getExternalStorageDirectory()
 				.getPath()
 				+ "/"
 				+ MacSpeechCommanderHome.APP_NAME
 				+ "/rawLogDir");
 
-		c.setFloat("-samprate", 16000.0);
+		c.setFloat("-samprate", 8000.0);
 		c.setInt("-maxhmmpf", 2000);
 		c.setInt("-maxwpf", 10);
 		c.setInt("-pl_window", 2);
@@ -327,6 +332,7 @@ public class RecognizerTask implements Runnable {
 									"Hypothesis: " + hyp.getHypstr());
 							if (this.rl != null && hyp != null) {
 								Bundle b = new Bundle();
+
 								b.putString("hyp", hyp.getHypstr());
 								this.rl.onPartialResults(b);
 							}
