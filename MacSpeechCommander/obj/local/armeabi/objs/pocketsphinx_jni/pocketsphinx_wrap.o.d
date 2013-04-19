@@ -1,5 +1,5 @@
-D:/PocketsphinxAndroidDemo/MacSpeechCommander//obj/local/armeabi/objs/pocketsphinx_jni/pocketsphinx_wrap.o: \
- D:/PocketsphinxAndroidDemo/MacSpeechCommander//jni/pocketsphinx_wrap.c \
+C:/Users/Pesanski/Documents/GitHub/MacSpeechCommander/MacSpeechCommander//obj/local/armeabi/objs/pocketsphinx_jni/pocketsphinx_wrap.o: \
+ C:/Users/Pesanski/Documents/GitHub/MacSpeechCommander/MacSpeechCommander//jni/pocketsphinx_wrap.c \
  D:/Goran/android-ndk/platforms/android-3/arch-arm/usr/include/jni.h \
  D:/Goran/android-ndk/platforms/android-3/arch-arm/usr/include/stdlib.h \
  D:/Goran/android-ndk/platforms/android-3/arch-arm/usr/include/sys/cdefs.h \
