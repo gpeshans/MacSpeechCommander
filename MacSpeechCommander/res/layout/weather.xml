@@ -1,15 +1,184 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical" >
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"
+    android:weightSum="1" >
 
-    <TextView
-        android:id="@+id/WeatherResult"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:text="Section Weather" />
+    <RelativeLayout
+        android:id="@+id/ForecastWindInfo"
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight=".30" >
 
-</RelativeLayout>
+        <ImageView
+            android:id="@+id/ForecastIcon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginLeft="@dimen/iconLeftMargin"
+            android:layout_marginTop="@dimen/verticalMargin" />
+
+        <TextView
+            android:id="@+id/ForecastTemperature"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="@dimen/forecastTempLeftMargin"
+            android:textColor="@color/black"
+            android:textSize="@dimen/temperature"
+            android:textStyle="normal" />
+
+        <TextView
+            android:id="@+id/ForecastTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@id/ForecastTemperature"
+            android:layout_alignParentLeft="true"
+            android:layout_marginBottom="@dimen/forecastTitleTopMargin"
+            android:layout_marginLeft="@dimen/iconLeftMargin"
+            android:textColor="@color/white"
+            android:textSize="@dimen/info"
+            android:textStyle="normal" />
+
+        <ImageView
+            android:id="@+id/CompassIcon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignTop="@id/ForecastIcon"
+            android:layout_marginRight="@dimen/iconLeftMargin" />
+
+        <ImageView
+            android:id="@+id/CompassArrowIcon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@id/CompassIcon"
+            android:layout_alignBottom="@id/CompassIcon"
+            android:layout_alignLeft="@id/CompassIcon"
+            android:layout_alignRight="@id/CompassIcon"
+            android:layout_alignTop="@id/CompassIcon" />
+
+        <TextView
+            android:id="@+id/WindInfo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_below="@+id/CompassIcon"
+            android:layout_marginRight="@dimen/iconLeftMargin"
+            android:textColor="@color/white"
+            android:textSize="@dimen/info"
+            android:textStyle="italic" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/WeatherInfo"
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight=".50" >
+
+        <View
+            android:id="@+id/ViewWeatherInfo"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_marginBottom="@dimen/backgroundOtherMargin"
+            android:layout_marginLeft="@dimen/backgroundOtherMargin"
+            android:layout_marginRight="@dimen/backgroundOtherMargin"
+            android:layout_marginTop="@dimen/backgroundTopMargin" />
+
+        <ImageView
+            android:id="@+id/WeatherIcon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/ViewWeatherInfo"
+            android:layout_alignParentTop="true"
+            android:layout_marginLeft="@dimen/iconLeftMargin"
+            android:layout_marginTop="@dimen/iconTopMargin" />
+
+        <TextView
+            android:id="@+id/WeatherTemperature"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/WeatherIcon"
+            android:layout_below="@+id/WeatherIcon"
+            android:layout_marginLeft="@dimen/backgroundOtherMargin"
+            android:layout_marginTop="@dimen/backgroundOtherMargin"
+            android:textColor="@color/white"
+            android:textSize="@dimen/temperature"
+            android:textStyle="normal" />
+
+        <TextView
+            android:id="@+id/WeatherResults"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="@dimen/backgroundOtherMargin"
+            android:layout_marginRight="@dimen/backgroundOtherMargin"
+            android:layout_toRightOf="@+id/WeatherIcon"
+            android:paddingTop="@dimen/verticalMargin"
+            android:textColor="@color/white"
+            android:textSize="@dimen/info" />
+
+        <TextView
+            android:id="@+id/WeatherForecast"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/ViewWeatherInfo"
+            android:layout_below="@+id/WeatherTemperature"
+            android:layout_marginLeft="@dimen/iconLeftMargin"
+            android:textColor="@color/white"
+            android:textSize="@dimen/info"
+            android:textStyle="italic" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/LocationFogInfo"
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight=".20" >
+
+        <TextView
+            android:id="@+id/LocationInfo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@+id/FogInfo"
+            android:layout_marginTop="@dimen/backgroundOtherMargin"
+            android:layout_toRightOf="@+id/PlaceIcon"
+            android:textColor="@color/white"
+            android:textSize="@dimen/municipality"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:id="@+id/FogIcon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="@dimen/iconLeftMargin"
+            android:layout_marginTop="@dimen/backgroundOtherMargin" />
+
+        <ImageView
+            android:id="@+id/PlaceIcon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignTop="@id/FogIcon"
+            android:layout_marginLeft="@dimen/iconLeftMargin"
+            android:layout_marginTop="@dimen/backgroundOtherMargin" />
+
+        <TextView
+            android:id="@+id/FogInfo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@+id/FogIcon"
+            android:layout_alignBottom="@+id/FogIcon"
+            android:layout_alignLeft="@+id/FogIcon"
+            android:layout_alignRight="@+id/FogIcon"
+            android:layout_alignTop="@+id/FogIcon"
+            android:gravity="center"
+            android:textColor="@color/black"
+            android:textSize="@dimen/fog"
+            android:textStyle="bold" />
+    </RelativeLayout>
+
+</LinearLayout>
