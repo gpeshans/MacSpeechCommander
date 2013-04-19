@@ -1,7 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+
     <string name="hello">Hello World, PocketSphinxAndroidDemo!</string>
     <string name="app_name">MacSpeechCommander</string>
-<color name="white">#FFF</color>
-<string name="performance_text">0.00 секунди 0.00 xRT</string>
+
+    <color name="white">#FFF</color>
+    <color name="sky">#6CBCFF</color>
+    <color name="black">#000</color>
+
+    <string name="performance_text">0.00 секунди 0.00 xRT</string>
+    <string name="weather_title">Временска прогноза</string>
+    <string name="currencies_title">Курс на денарот</string>
+    <string name="prices_title">Цени на пазарите</string>
+    <string name="results_here">Резултати овде ...</string>
+    <string name="dummy_section_text">Секција %1d уште не е пополнета.</string>
+
 </resources>

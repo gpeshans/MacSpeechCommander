@@ -1,46 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical" >
+    android:layout_height="match_parent" >
 
-    <!-- <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true"
-        android:text="Section Services" /> -->
-    
     <Button
         android:id="@+id/Weather"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="41dp"
-        android:background="@color/white"
-        android:text="vreme"
-        android:textColor="#000" />
-    
+        android:layout_marginTop="@dimen/horizontalMargin"
+        android:background="@drawable/ic_weather" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/Weather"
+        android:layout_centerHorizontal="true"
+        android:text="@string/weather_title" />
+
     <Button
         android:id="@+id/Currencies"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
         android:layout_below="@id/Weather"
-        android:layout_marginTop="41dp"
-        android:background="@color/white"
-        android:text="valuti"
-        android:textColor="#000" />
-    
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="@dimen/horizontalMargin"
+        android:background="@drawable/ic_currencies" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/Currencies"
+        android:layout_centerHorizontal="true"
+        android:text="@string/currencies_title" />
+
     <Button
         android:id="@+id/Prices"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
         android:layout_below="@id/Currencies"
-        android:layout_marginTop="41dp"
-        android:background="@color/white"
-        android:text="ceni"
-        android:textColor="#000" />
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="@dimen/horizontalMargin"
+        android:background="@drawable/ic_prices" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/Prices"
+        android:layout_centerHorizontal="true"
+        android:text="@string/prices_title" />
 
 </RelativeLayout>
